@@ -1,9 +1,7 @@
 use std::sync::Arc;
 
-use rmcp::{
-    Error as McpError, RoleServer, ServerHandler, const_string, model::*, service::RequestContext,
-    tool,
-};
+use rmcp::{const_string, model::{AnnotateAble, CallToolResult, ConstString, Content, GetPromptRequestParam, GetPromptResult, Implementation, ListPromptsResult, ListResourceTemplatesResult, ListResourcesResult, PaginatedRequestParamInner, Prompt, PromptArgument, PromptMessage, PromptMessageContent, PromptMessageRole, ProtocolVersion, RawResource, ReadResourceRequestParam, ReadResourceResult, Resource, ResourceContents, ServerCapabilities, ServerInfo}, service::RequestContext, tool, Error as McpError, RoleServer, ServerHandler};
+
 use serde_json::json;
 
 use crate::service::{auth::AuthUsecase, service_operation::ServiceOperationUsecase, service_type::ServiceTypeUsecase, transaction::TransactionUsecase};
@@ -11,7 +9,7 @@ use crate::service::{auth::AuthUsecase, service_operation::ServiceOperationUseca
 
 
 
-
+#[allow(dead_code)]
 #[derive(Clone)]
 pub struct MCPHandler {
     auth_usecase: Arc<AuthUsecase>,
@@ -41,7 +39,6 @@ impl MCPHandler {
     fn _create_resource_text(&self, uri: &str, name: &str) -> Resource {
         RawResource::new(uri, name.to_string()).no_annotation()
     }
-
 
     #[tool(description = "Get all income")]
     pub async fn get_resme(
@@ -252,22 +249,23 @@ impl MCPHandler {
 const_string!(Echo = "echo");
 #[tool(tool_box)]
 impl ServerHandler for MCPHandler {
+    
     fn get_info(&self) -> ServerInfo {
         ServerInfo {
-            protocol_version: ProtocolVersion::V_2024_11_05,
+            protocol_version: ProtocolVersion::LATEST,
             capabilities: ServerCapabilities::builder()
                 .enable_prompts()
                 .enable_resources()
                 .enable_tools()
                 .build(),
             server_info: Implementation::from_build_env(),
-            instructions: Some("Light - House project that represent data of income expense".to_string()),
+            instructions: Some("Real personal financial analysis".to_string()),
         }
     }
 
     async fn list_resources(
         &self,
-        _request: Option<PaginatedRequestParam>,
+        _request: std::option::Option<PaginatedRequestParamInner>,
         _: RequestContext<RoleServer>,
     ) -> Result<ListResourcesResult, McpError> {
         Ok(ListResourcesResult {
@@ -308,7 +306,7 @@ impl ServerHandler for MCPHandler {
 
     async fn list_prompts(
         &self,
-        _request: Option<PaginatedRequestParam>,
+        _request: std::option::Option<PaginatedRequestParamInner>,
         _: RequestContext<RoleServer>,
     ) -> Result<ListPromptsResult, McpError> {
         Ok(ListPromptsResult {
@@ -354,7 +352,7 @@ impl ServerHandler for MCPHandler {
 
     async fn list_resource_templates(
         &self,
-        _request: Option<PaginatedRequestParam>,
+        _request: std::option::Option<PaginatedRequestParamInner>,
         _: RequestContext<RoleServer>,
     ) -> Result<ListResourceTemplatesResult, McpError> {
         Ok(ListResourceTemplatesResult {
@@ -362,4 +360,5 @@ impl ServerHandler for MCPHandler {
             resource_templates: Vec::new(),
         })
     }
+
 }

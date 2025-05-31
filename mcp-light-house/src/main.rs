@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use dotenvy::dotenv;
 use anyhow::Result;
-use mcp_light_house::{config::{self, token_config::load}, infrastructure::{mcp_handler::init_handler::MCPHandler, repository::{auth_repo::AuthRepositoryImpl, service_operation_repo::ServiceOperationRepositoryImpl, service_type_repo::ServiceTypeRepositoryImpl, transaction_repo::TransactionRepositoryImpl}}, service::{auth::AuthUsecase, service_operation::ServiceOperationUsecase, service_type::ServiceTypeUsecase, transaction::TransactionUsecase}};
+use mcp_light_house::{config::{token_config::load}, infrastructure::{mcp_handler::init_handler::MCPHandler, repository::{auth_repo::AuthRepositoryImpl, service_operation_repo::ServiceOperationRepositoryImpl, service_type_repo::ServiceTypeRepositoryImpl, transaction_repo::TransactionRepositoryImpl}}, service::{auth::AuthUsecase, service_operation::ServiceOperationUsecase, service_type::ServiceTypeUsecase, transaction::TransactionUsecase}};
 use rmcp::{transport::stdio, ServiceExt};
 use tracing_subscriber::EnvFilter;
 
@@ -47,11 +47,16 @@ async fn main() -> Result<()> {
         Arc::new(service_operation_usecase))
         .serve(stdio())
         .await
-        .inspect_err(|e|{
-            tracing::error!("Failed to start MCP Light House service: {}", e);
-        })?;
+        .inspect_err(|e| tracing::error!("Failed to start MCP Light House service: {}", e))?;
+    service.waiting().await.inspect_err(|e| tracing::error!("Failed to start MCP Light House service: {}", e))?;
+    tracing::info!("MCP Light House service started successfully");
     
-    service.waiting().await?;
+
+        
+        
+        
+    
+    
 
 
     Ok(())
